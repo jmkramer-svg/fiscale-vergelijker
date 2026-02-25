@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOF / Eenmanszaak vs BV — Fiscale Vergelijker 2026</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--card:#1c2128;--card2:#22272e;
+  --border:#30363d;--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --vof:#3b82f6;--vof2:#60a5fa;--vof-dim:rgba(59,130,246,.15);
+  --bv:#a855f7;--bv2:#c084fc;--bv-dim:rgba(168,85,247,.15);
+  --green:#3fb950;--green-dim:rgba(63,185,80,.15);
+  --red:#f85149;--red-dim:rgba(248,81,73,.15);
+  --orange:#d29922;--orange-dim:rgba(210,153,34,.15);
+  --r:10px;--r2:6px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 40px}
+a{color:var(--vof2);text-decoration:none}
+
+/* ─── TYPOGRAPHY ─── */
+h1{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;text-align:center;background:linear-gradient(135deg,var(--vof2),var(--bv2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.subtitle{text-align:center;color:var(--text2);font-size:.85rem;margin-bottom:24px}
+
+/* ─── LAYOUT ─── */
+.wrap{max-width:1280px;margin:0 auto}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.sticky{position:sticky;top:20px}
+
+/* ─── CARDS ─── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.card+.card{margin-top:14px}
+.card-title{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.03em;white-space:nowrap}
+.badge-vof{background:var(--vof-dim);color:var(--vof2);border:1px solid rgba(59,130,246,.3)}
+.badge-bv{background:var(--bv-dim);color:var(--bv2);border:1px solid rgba(168,85,247,.3)}
+.badge-kor{background:rgba(20,184,166,.15);color:#2dd4bf;border:1px solid rgba(20,184,166,.3)}
+.divider{height:1px;background:var(--border);margin:14px 0}
+
+/* ─── FORMS ─── */
+.form-group{margin-bottom:13px}
+label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:5px;font-weight:500}
+.inp{width:100%;padding:9px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);color:var(--text);font-size:.9rem;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--vof)}
+.inp-pre{position:relative}
+.inp-pre .pre{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.9rem;pointer-events:none}
+.inp-pre .inp{padding-left:24px}
+.hint{font-size:.72rem;color:var(--text3);margin-top:3px}
+.hint.ok{color:var(--green)}
+.hint.warn{color:var(--orange)}
+
+/* ─── TOGGLE BUTTONS ─── */
+.tg{display:flex;gap:6px;flex-wrap:wrap}
+.tg-btn{flex:1;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);color:var(--text2);cursor:pointer;font-size:.82rem;text-align:center;transition:all .15s;user-select:none;min-width:60px}
+.tg-btn:hover{border-color:var(--text3)}
+.tg-btn.active{background:var(--vof-dim);border-color:var(--vof);color:var(--vof2);font-weight:600}
+.tg-btn.active-bv{background:var(--bv-dim);border-color:var(--bv);color:var(--bv2);font-weight:600}
+
+/* ─── RANGE SLIDER ─── */
+input[type=range]{width:100%;accent-color:var(--vof);cursor:pointer}
+
+/* ─── WINNER BANNER ─── */
+.winner{border-radius:var(--r);padding:14px 18px;text-align:center;margin-bottom:14px;display:none}
+.winner.vof{background:var(--vof-dim);border:1px solid rgba(59,130,246,.35)}
+.winner.bv{background:var(--bv-dim);border:1px solid rgba(168,85,247,.35)}
+.winner.tie{background:var(--green-dim);border:1px solid rgba(63,185,80,.35)}
+.winner-title{font-size:1rem;font-weight:700;margin-bottom:4px}
+.winner-sub{font-size:.8rem;color:var(--text2)}
+
+/* ─── COMPARISON GRID ─── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:600px){.cmp-grid{grid-template-columns:1fr}}
+
+.cmp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.cmp-card.vof{border-top:3px solid var(--vof)}
+.cmp-card.bv{border-top:3px solid var(--bv)}
+.cmp-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:3px;font-weight:600}
+.cmp-big{font-size:1.9rem;font-weight:700;margin-bottom:2px;line-height:1.1}
+.cmp-big.vof{color:var(--vof2)}
+.cmp-big.bv{color:var(--bv2)}
+.cmp-rate{font-size:.9rem;color:var(--text2);margin-bottom:12px}
+
+/* ─── BAR ─── */
+.bar-wrap{height:32px;background:var(--bg2);border-radius:4px;overflow:hidden;display:flex;margin-bottom:12px}
+.bar-net{background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;min-width:0;transition:width .5s ease}
+.bar-tax{background:var(--red);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;min-width:0;transition:width .5s ease}
+
+/* ─── BREAKDOWN TABLE ─── */
+.br-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;gap:8px}
+.br-row:last-child{border-bottom:none}
+.br-row.total{border-top:1px solid var(--border);padding-top:8px;font-weight:700;font-size:.9rem}
+.br-lbl{color:var(--text2)}
+.br-val{font-weight:600;white-space:nowrap;text-align:right}
+.br-val.neg{color:var(--red)}
+.br-val.pos{color:var(--green)}
+.br-val.neu{color:var(--text)}
+
+/* ─── VENNOOT CARDS ─── */
+.ven-card{background:var(--bg2);border-radius:var(--r2);padding:12px;margin-bottom:8px}
+.ven-name{font-size:.8rem;font-weight:700;color:var(--vof2);margin-bottom:8px}
+.ven-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ven-item .lbl{font-size:.7rem;color:var(--text3)}
+.ven-item .val{font-size:.85rem;font-weight:600}
+
+/* ─── SCENARIO TABLE ─── */
+.scenario-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.scenario-table th{text-align:left;padding:8px 10px;color:var(--text2);border-bottom:1px solid var(--border);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.scenario-table td{padding:7px 10px;border-bottom:1px solid var(--border)}
+.scenario-table tr:last-child td{border-bottom:none}
+.scenario-table tr.active-row td{background:rgba(59,130,246,.07)}
+.scenario-table .winner-cell{font-weight:700}
+.scenario-table .winner-vof{color:var(--vof2)}
+.scenario-table .winner-bv{color:var(--bv2)}
+
+/* ─── PARAMS BOX ─── */
+.params-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:500px){.params-grid{grid-template-columns:1fr}}
+.params-section strong{display:block;color:var(--text);margin-bottom:4px;font-size:.8rem}
+.params-section .item{font-size:.75rem;color:var(--text2);padding:2px 0}
+
+/* ─── WARNING BOX ─── */
+.alert{background:var(--orange-dim);border:1px solid rgba(210,153,34,.4);border-radius:var(--r2);padding:8px 11px;font-size:.78rem;color:var(--orange);margin-bottom:10px}
+.alert-red{background:var(--red-dim);border-color:rgba(248,81,73,.4);color:var(--red)}
+
+/* ─── DISCLAIMER ─── */
+.disc{text-align:center;color:var(--text3);font-size:.72rem;margin-top:20px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);line-height:1.6}
+
+/* ─── FULLWIDTH ─── */
+.full{grid-column:1/-1}
+
+/* ─── CHART ─── */
+#chart-container{width:100%}
+#chart-container svg{display:block;width:100%;overflow:visible;cursor:crosshair}
+.chart-legend{display:flex;gap:18px;margin-top:10px;font-size:.75rem;color:var(--text2);flex-wrap:wrap;align-items:center}
+.chart-legend span{display:flex;align-items:center;gap:5px}
+#chart-info{font-size:.82rem;color:var(--text2);margin-bottom:12px;line-height:1.6;min-height:1.4em}
+
+/* ─── KVK SECTIE ─── */
+.badge-kvk{background:rgba(234,179,8,.15);color:#ca8a04;border:1px solid rgba(234,179,8,.3)}
+.kvk-result-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:10px;margin-top:10px}
+.kvk-stat{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:.8rem;gap:8px}
+.kvk-stat:last-child{border-bottom:none}
+.kvk-stat .lbl{color:var(--text2);white-space:nowrap}
+.kvk-stat .val{font-weight:600;text-align:right;word-break:break-word;max-width:60%}
+.kvk-status{padding:8px 11px;border-radius:var(--r2);font-size:.78rem;margin-top:8px;line-height:1.6}
+.kvk-status.loading{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:var(--vof2)}
+.kvk-status.error{background:var(--red-dim);border:1px solid rgba(248,81,73,.4);color:var(--red)}
+.kvk-status.ok{background:var(--green-dim);border:1px solid rgba(63,185,80,.3);color:var(--green)}
+.kvk-apply-btn{width:100%;margin-top:8px;padding:8px 12px;background:var(--vof-dim);border:1px solid var(--vof);border-radius:var(--r2);color:var(--vof2);cursor:pointer;font-size:.82rem;font-family:inherit;font-weight:600;transition:all .15s;text-align:left}
+.kvk-apply-btn:hover{background:rgba(59,130,246,.25)}
+.kvk-apply-btn.bv{background:var(--bv-dim);border-color:var(--bv);color:var(--bv2)}
+.kvk-apply-btn.bv:hover{background:rgba(168,85,247,.25)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin .9s linear infinite}
+
+/* ─── LICHT THEMA ─── */
+body.light{
+  --bg:#f6f8fa;--bg2:#ffffff;--card:#ffffff;--card2:#f6f8fa;
+  --border:#d0d7de;--text:#1f2328;--text2:#656d76;--text3:#9198a1;
+  --vof:#2563eb;--vof2:#1d4ed8;--vof-dim:rgba(37,99,235,.1);
+  --bv:#9333ea;--bv2:#7c3aed;--bv-dim:rgba(147,51,234,.1);
+  --green:#1a7f37;--green-dim:rgba(26,127,55,.1);
+  --red:#cf222e;--red-dim:rgba(207,34,46,.1);
+  --orange:#9a6700;--orange-dim:rgba(154,103,0,.1);
+}
+body.light .bar-net{background:#16a34a}
+body.light .bar-tax{background:#dc2626}
+body.light .bar-wrap{background:#e2e8f0}
+body.light .scenario-table tr.active-row td{background:rgba(37,99,235,.06)}
+
+/* ─── TOPBAR (print + thema knoppen) ─── */
+.topbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:18px}
+.top-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);color:var(--text2);cursor:pointer;font-size:.82rem;font-family:inherit;transition:all .15s;white-space:nowrap}
+.top-btn:hover{border-color:var(--text3);color:var(--text);background:var(--card2)}
+.top-btn svg{flex-shrink:0}
+
+/* ─── PRINT BUTTON (legacy alias) ─── */
+.print-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);color:var(--text2);cursor:pointer;font-size:.82rem;font-family:inherit;transition:all .15s;margin-bottom:18px;float:right}
+.print-btn:hover{border-color:var(--text3);color:var(--text);background:var(--card2)}
+.print-btn svg{flex-shrink:0}
+
+/* ─── PRINT HEADER (screen: hidden) ─── */
+.print-header{display:none}
+
+/* ─── PRINT MEDIA ─── */
+@media print {
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;color:#111;padding:0;font-size:11pt}
+  .print-btn{display:none}
+  .sticky{display:none}
+  .layout{display:block}
+  #results{width:100%}
+  .winner{margin-bottom:12pt}
+  .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10pt}
+  .cmp-card{background:#f8f9fa;border:1px solid #dee2e6;break-inside:avoid}
+  .cmp-card.vof{border-top:3px solid #2563eb}
+  .cmp-card.bv{border-top:3px solid #9333ea}
+  .card{background:#f8f9fa;border:1px solid #dee2e6;break-inside:avoid}
+  .winner.vof{background:#dbeafe;border-color:#93c5fd}
+  .winner.bv{background:#f3e8ff;border-color:#d8b4fe}
+  .winner.tie{background:#dcfce7;border-color:#86efac}
+  .winner-title,.winner-sub{color:#111}
+  .bar-wrap{background:#e9ecef}
+  .bar-net{background:#16a34a}
+  .bar-tax{background:#dc2626}
+  .br-lbl{color:#555}
+  .br-val.neg{color:#dc2626}
+  .br-val.pos{color:#16a34a}
+  .br-val.neu{color:#111}
+  .cmp-big.vof{color:#2563eb}
+  .cmp-big.bv{color:#9333ea}
+  .cmp-rate{color:#555}
+  .card-title{color:#555}
+  .badge-vof{background:#dbeafe;color:#2563eb;border-color:#93c5fd}
+  .badge-bv{background:#f3e8ff;color:#9333ea;border-color:#d8b4fe}
+  .badge-kor{background:#ccfbf1;color:#0f766e;border-color:#99f6e4}
+  .ven-card{background:#f1f3f5}
+  .ven-name{color:#2563eb}
+  .params-section strong{color:#111}
+  .params-section .item{color:#555}
+  .scenario-table th{color:#555;border-bottom-color:#dee2e6}
+  .scenario-table td{border-bottom-color:#dee2e6}
+  .scenario-table tr.active-row td{background:#eff6ff}
+  .scenario-table .winner-vof{color:#2563eb}
+  .scenario-table .winner-bv{color:#9333ea}
+  h1{background:none;-webkit-text-fill-color:#111;color:#111}
+  .subtitle{color:#555}
+  .disc{background:#f8f9fa;border-color:#dee2e6;color:#777}
+  .hint{color:#777}
+  .alert{background:#fef9c3;border-color:#fde047;color:#713f12}
+  #chart-container svg{cursor:default}
+  #chart-tt{display:none!important}
+  #kor-card{break-inside:avoid}
+  .kvk-apply-btn,.kvk-status{display:none}
+  .kvk-result-card{background:#f8f9fa;border-color:#dee2e6}
+  .kvk-stat .lbl{color:#555}
+  .print-header{display:block;margin-bottom:14pt;padding:10pt 14pt;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6pt;font-size:9.5pt;color:#334155;line-height:1.8}
+  .print-header strong{color:#111;font-size:10pt}
+  .print-header .ph-row{display:flex;flex-wrap:wrap;gap:6pt 24pt}
+  .print-header .ph-item{white-space:nowrap}
+}</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>VOF / Eenmanszaak vs BV</h1>
+  <p class="subtitle">Fiscale vergelijker 2026 &mdash; Bereken en vergelijk uw netto inkomen per ondernemingsvorm</p>
+  <div class="topbar">
+    <button class="top-btn" id="theme-btn" onclick="toggleTheme()" title="Wissel thema">
+      <svg id="theme-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      Licht thema
+    </button>
+    <button class="top-btn" onclick="printReport()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Afdrukken / PDF
+    </button>
+  </div>
+
+  <div class="layout">
+    <!-- ══════════════ INPUT PANEL ══════════════ -->
+    <div class="sticky">
+
+      <!-- KVK KOPPELING KAART -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title"><span class="badge badge-kvk">KVK</span>&nbsp; Handelsregister koppeling</div>
+
+        <!-- Test / Productie -->
+        <div class="form-group">
+          <label>Omgeving</label>
+          <div class="tg">
+            <div class="tg-btn active" id="kvk-env-test" onclick="setKVKEnv('test')">Test</div>
+            <div class="tg-btn" id="kvk-env-prod" onclick="setKVKEnv('prod')">Productie</div>
+          </div>
+          <div class="hint" id="kvk-env-hint">Testomgeving met fictieve bedrijfsdata — geen API-sleutel nodig</div>
+        </div>
+
+        <!-- API-sleutel (alleen productie) -->
+        <div class="form-group" id="kvk-apikey-group" style="display:none">
+          <label for="kvk-apikey">API-sleutel</label>
+          <div style="display:flex;gap:6px">
+            <input class="inp" type="password" id="kvk-apikey" placeholder="Uw KVK API-sleutel" style="flex:1" oninput="saveKVKKey()">
+            <button class="tg-btn" id="kvk-eye" onclick="toggleKVKApiVis()" title="Toon/verberg" style="flex:0 0 auto;padding:7px 11px;font-size:1rem">👁</button>
+          </div>
+          <div class="hint">Abonneer via <a href="https://developers.kvk.nl" target="_blank">developers.kvk.nl</a> — betaald per zoekopdracht</div>
+        </div>
+
+        <!-- KVK-nummer + Ophalen -->
+        <div class="form-group">
+          <label for="kvk-nummer">KVK-nummer (8 cijfers)</label>
+          <div style="display:flex;gap:6px">
+            <input class="inp" type="text" id="kvk-nummer" placeholder="12345678" maxlength="8" inputmode="numeric"
+              style="flex:1;letter-spacing:.12em;font-size:1rem"
+              onkeydown="if(event.key==='Enter')haalKVKOp()">
+            <button id="kvk-btn" onclick="haalKVKOp()"
+              style="flex:0 0 auto;padding:7px 14px;background:var(--vof-dim);border:1px solid var(--vof);border-radius:var(--r2);color:var(--vof2);cursor:pointer;font-size:.82rem;font-weight:600;font-family:inherit;transition:all .15s;white-space:nowrap">
+              Ophalen
+            </button>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div id="kvk-status" class="kvk-status" style="display:none"></div>
+
+        <!-- Resultaat -->
+        <div id="kvk-result" style="display:none"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Invoer gegevens</div>
+
+        <!-- Bruto winst -->
+        <div class="form-group">
+          <label for="brutowinst">Bruto winst (omzet minus bedrijfskosten)</label>
+          <div class="inp-pre">
+            <span class="pre">€</span>
+            <input class="inp" type="number" id="brutowinst" value="100000" min="0" step="1000">
+          </div>
+        </div>
+
+        <!-- Fiscaal partner -->
+        <div class="form-group">
+          <label>Fiscaal partner?</label>
+          <div class="tg">
+            <div class="tg-btn active" id="partner-nee" onclick="setToggle('partner',false)">Nee</div>
+            <div class="tg-btn" id="partner-ja" onclick="setToggle('partner',true)">Ja</div>
+          </div>
+          <div class="hint" id="partner-hint">Heeft geen invloed op deze berekening (toekomstige uitbreiding)</div>
+        </div>
+
+        <!-- Uren per week -->
+        <div class="form-group">
+          <label for="urenperweek">Uren per week gewerkt (voor urencriterium)</label>
+          <input class="inp" type="number" id="urenperweek" value="40" min="0" max="80" step="1">
+          <div class="hint" id="uren-hint"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- VOF instellingen -->
+        <div class="card-title"><span class="badge badge-vof">VOF</span> Instellingen</div>
+
+        <div class="form-group">
+          <label>Aantal vennoten</label>
+          <div class="tg">
+            <div class="tg-btn active" id="ven-1" onclick="setVennoten(1)">1</div>
+            <div class="tg-btn" id="ven-2" onclick="setVennoten(2)">2</div>
+            <div class="tg-btn" id="ven-3" onclick="setVennoten(3)">3</div>
+          </div>
+        </div>
+
+        <div id="ven-verdeling"></div>
+
+        <div class="divider"></div>
+
+        <!-- BV instellingen -->
+        <div class="card-title"><span class="badge badge-bv">BV</span> Instellingen</div>
+
+        <div class="form-group">
+          <label for="dgasalaris">DGA-salaris (bruto per jaar)</label>
+          <div class="inp-pre">
+            <span class="pre">€</span>
+            <input class="inp" type="number" id="dgasalaris" value="58000" min="0" step="1000">
+          </div>
+          <div class="hint" id="dga-hint">Minimum gebruikelijk loon 2026: €&nbsp;58.000</div>
+        </div>
+
+        <div class="form-group">
+          <label>Winst BV uitkeren als dividend?</label>
+          <div class="tg">
+            <div class="tg-btn active" id="div-ja" onclick="setToggle('dividend',true)">Ja (volledig)</div>
+            <div class="tg-btn" id="div-nee" onclick="setToggle('dividend',false)">Nee (in BV)</div>
+          </div>
+          <div class="hint">Bij "Nee" blijft winst in BV: geen box&nbsp;2 nu, maar ook geen beschikbaar inkomen</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- KOR instellingen -->
+        <div class="card-title"><span class="badge badge-kor">KOR</span> BTW-vrijstelling</div>
+
+        <div class="form-group">
+          <label>KOR vergelijking tonen?</label>
+          <div class="tg">
+            <div class="tg-btn active" id="kor-nee" onclick="setToggle('korTonen',false)">Nee</div>
+            <div class="tg-btn" id="kor-ja" onclick="setToggle('korTonen',true)">Ja</div>
+          </div>
+          <div class="hint">Kleineondernemersregeling 2026: BTW-vrijstelling voor omzet ≤ €&nbsp;20.000</div>
+        </div>
+
+        <div id="kor-inputs" style="display:none">
+          <div class="form-group">
+            <label for="kor-omzet">Jaaromzet excl. BTW</label>
+            <div class="inp-pre">
+              <span class="pre">€</span>
+              <input class="inp" type="number" id="kor-omzet" value="18000" min="0" step="500">
+            </div>
+            <div class="hint" id="kor-drempel-hint">KOR-drempel 2026: ≤ €&nbsp;20.000 — vul hier uw omzet in (excl. BTW)</div>
+          </div>
+
+          <div class="form-group">
+            <label>BTW-tarief op omzet</label>
+            <div class="tg">
+              <div class="tg-btn active" id="btw-21" onclick="setBTW(0.21)">21%</div>
+              <div class="tg-btn" id="btw-9" onclick="setBTW(0.09)">9%</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="kor-inputbtw">Inkoop-BTW als % van omzet</label>
+            <input class="inp" type="number" id="kor-inputbtw" value="5" min="0" max="100" step="0.5">
+            <div class="hint">Schatting: BTW die u betaalt op kosten/inkopen, gedeeld door omzet. Dienstverleners: ~3–8%; handel: hoger.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Klanttype (bepalend voor KOR-voordeel)</label>
+            <div class="tg">
+              <div class="tg-btn active" id="kor-b2c" onclick="setKorKlanten('b2c')">B2C &mdash; particulier</div>
+              <div class="tg-btn" id="kor-b2b" onclick="setKorKlanten('b2b')">B2B &mdash; zakelijk</div>
+            </div>
+            <div class="hint" id="kor-klanten-hint">B2C: klant betaalt dezelfde totaalprijs → u behoudt de BTW</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ RESULTS PANEL ══════════════ -->
+    <div id="results">
+      <!-- Print header (only visible when printing) -->
+      <div class="print-header" id="print-header"></div>
+
+      <!-- Winner banner -->
+      <div class="winner" id="winner">
+        <div class="winner-title" id="winner-title"></div>
+        <div class="winner-sub" id="winner-sub"></div>
+      </div>
+
+      <!-- Alerts -->
+      <div id="alerts"></div>
+
+      <!-- Main comparison cards -->
+      <div class="cmp-grid">
+        <!-- VOF -->
+        <div class="cmp-card vof">
+          <div class="cmp-label"><span class="badge badge-vof">VOF</span> &nbsp;/ Eenmanszaak</div>
+          <div class="cmp-big vof" id="vof-netto">—</div>
+          <div class="cmp-rate" id="vof-rate">netto inkomen</div>
+          <div class="bar-wrap">
+            <div class="bar-net" id="vof-bar-net" style="width:70%">netto</div>
+            <div class="bar-tax" id="vof-bar-tax" style="width:30%">tax</div>
+          </div>
+
+          <div class="br-row"><span class="br-lbl">Bruto winst (aandeel)</span><span class="br-val neu" id="v-bruto">—</span></div>
+          <div class="br-row"><span class="br-lbl">Zelfstandigenaftrek</span><span class="br-val pos" id="v-za">—</span></div>
+          <div class="br-row"><span class="br-lbl">MKB-winstvrijstelling (12,7%)</span><span class="br-val pos" id="v-mkb">—</span></div>
+          <div class="br-row"><span class="br-lbl">Belastbaar inkomen (box&nbsp;1)</span><span class="br-val neu" id="v-belastbaar">—</span></div>
+          <div class="br-row"><span class="br-lbl">IB bruto (schijven)</span><span class="br-val neg" id="v-ib-bruto">—</span></div>
+          <div class="br-row"><span class="br-lbl">Alg. heffingskorting</span><span class="br-val pos" id="v-ahk">—</span></div>
+          <div class="br-row"><span class="br-lbl">Arbeidskorting</span><span class="br-val pos" id="v-ak">—</span></div>
+          <div class="br-row total"><span class="br-lbl">IB te betalen</span><span class="br-val neg" id="v-ib-netto">—</span></div>
+          <div class="br-row"><span class="br-lbl">Premie ZVW (4,85% lage bijdrage)</span><span class="br-val neg" id="v-zvw">—</span></div>
+          <div class="br-row total"><span class="br-lbl">Netto inkomen (na IB + ZVW)</span><span class="br-val" style="color:var(--vof2)" id="v-netto2">—</span></div>
+        </div>
+
+        <!-- BV -->
+        <div class="cmp-card bv">
+          <div class="cmp-label"><span class="badge badge-bv">BV</span> &nbsp;Besloten Vennootschap</div>
+          <div class="cmp-big bv" id="bv-netto">—</div>
+          <div class="cmp-rate" id="bv-rate">netto inkomen DGA</div>
+          <div class="bar-wrap">
+            <div class="bar-net" id="bv-bar-net" style="width:70%">netto</div>
+            <div class="bar-tax" id="bv-bar-tax" style="width:30%">tax</div>
+          </div>
+
+          <div class="br-row"><span class="br-lbl">Bruto winst BV</span><span class="br-val neu" id="b-bruto">—</span></div>
+          <div class="br-row"><span class="br-lbl">DGA-salaris (aftrekbaar voor BV)</span><span class="br-val neg" id="b-salaris">—</span></div>
+          <div class="br-row"><span class="br-lbl">ZVW werkgeversheffing (6,10% op salaris)</span><span class="br-val neg" id="b-zvw-wg">—</span></div>
+          <div class="br-row"><span class="br-lbl">BV winst vóór VPB</span><span class="br-val neu" id="b-winst-vpb">—</span></div>
+          <div class="br-row"><span class="br-lbl">Vennootschapsbelasting (VPB)</span><span class="br-val neg" id="b-vpb">—</span></div>
+          <div class="br-row"><span class="br-lbl">BV winst na VPB (uitkeerbaar)</span><span class="br-val neu" id="b-winst-na-vpb">—</span></div>
+          <div class="br-row"><span class="br-lbl" id="b-box2-lbl">Box&nbsp;2 belasting (dividend)</span><span class="br-val neg" id="b-box2">—</span></div>
+          <div class="br-row"><span class="br-lbl">Netto dividend</span><span class="br-val pos" id="b-div">—</span></div>
+          <div class="br-row"><span class="br-lbl">Loonheffing op DGA-salaris</span><span class="br-val neg" id="b-lh">—</span></div>
+          <div class="br-row total"><span class="br-lbl">Netto DGA-salaris</span><span class="br-val pos" id="b-netto-sal">—</span></div>
+          <div class="br-row total"><span class="br-lbl">Totaal netto inkomen DGA</span><span class="br-val" style="color:var(--bv2)" id="b-netto2">—</span></div>
+        </div>
+      </div>
+
+      <!-- ══ KOR VERGELIJKING ══ -->
+      <div id="kor-card" class="card" style="display:none;margin-bottom:14px">
+        <div class="card-title"><span class="badge badge-kor">KOR</span>&nbsp; ZZP met BTW-vrijstelling (Kleineondernemersregeling 2026)</div>
+
+        <div id="kor-applicable" style="padding:8px 12px;border-radius:var(--r2);font-size:.8rem;font-weight:600;margin-bottom:14px"></div>
+
+        <div class="cmp-grid">
+          <!-- Zonder KOR -->
+          <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border-left:3px solid var(--vof)">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:10px;font-weight:700">ZZP zonder KOR</div>
+            <div class="br-row"><span class="br-lbl">Omzet excl. BTW</span><span class="br-val neu" id="kz-omzet">—</span></div>
+            <div class="br-row"><span class="br-lbl">Kosten excl. BTW</span><span class="br-val neg" id="kz-kosten">—</span></div>
+            <div class="br-row"><span class="br-lbl">Bruto winst (IB-basis)</span><span class="br-val neu" id="kz-bw">—</span></div>
+            <div class="br-row" style="border-top:1px dashed var(--border);margin-top:4px;padding-top:8px">
+              <span class="br-lbl" style="font-style:italic">Te betalen BTW <sup>¹</sup></span>
+              <span class="br-val" style="color:var(--text3);font-style:italic" id="kz-btw">—</span>
+            </div>
+            <div class="br-row"><span class="br-lbl">IB te betalen</span><span class="br-val neg" id="kz-ib">—</span></div>
+            <div class="br-row" style="font-weight:700;font-size:.9rem">
+              <span class="br-lbl">Netto inkomen</span>
+              <span class="br-val" style="color:var(--vof2)" id="kz-netto">—</span>
+            </div>
+            <div style="font-size:.68rem;color:var(--text3);margin-top:8px;line-height:1.5">¹ BTW is een kasstroompost buiten de IB&#8209;grondslag</div>
+          </div>
+
+          <!-- Met KOR -->
+          <div style="background:var(--bg2);border-radius:var(--r);padding:14px;border-left:3px solid #14b8a6" id="kor-met-col">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:#2dd4bf;margin-bottom:10px;font-weight:700" id="kor-met-col-title">ZZP MET KOR — B2C</div>
+            <div class="br-row"><span class="br-lbl" id="km-omzet-lbl">Omzet (zelfde prijs incl. BTW)</span><span class="br-val neu" id="km-omzet">—</span></div>
+            <div class="br-row"><span class="br-lbl">Kosten incl. BTW (geen teruggave)</span><span class="br-val neg" id="km-kosten">—</span></div>
+            <div class="br-row"><span class="br-lbl">KOR-gecorr. winst (IB-basis)</span><span class="br-val neu" id="km-bw">—</span></div>
+            <div class="br-row" style="border-top:1px dashed var(--border);margin-top:4px;padding-top:8px">
+              <span class="br-lbl" style="font-style:italic">Te betalen BTW (KOR)</span>
+              <span class="br-val pos" id="km-btw">—</span>
+            </div>
+            <div class="br-row"><span class="br-lbl">IB te betalen</span><span class="br-val neg" id="km-ib">—</span></div>
+            <div class="br-row" style="font-weight:700;font-size:.9rem">
+              <span class="br-lbl">Netto inkomen</span>
+              <span class="br-val" id="km-netto" style="color:#2dd4bf">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voordeel/nadeel banner -->
+        <div id="kor-voordeel" style="margin-top:12px;padding:10px 14px;border-radius:var(--r2);font-size:.85rem;text-align:center;font-weight:600;line-height:1.6"></div>
+
+        <!-- BTW breakdown -->
+        <div class="divider"></div>
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:8px;font-weight:700">BTW-berekening</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div class="br-row"><span class="br-lbl">BTW op omzet</span><span class="br-val neg" id="kor-btw-omzet">—</span></div>
+            <div class="br-row"><span class="br-lbl">BTW op inkopen (schatting)</span><span class="br-val pos" id="kor-btw-inkopen">—</span></div>
+          </div>
+          <div>
+            <div class="br-row"><span class="br-lbl">Normaal af te dragen BTW</span><span class="br-val neg" id="kor-afdragen">—</span></div>
+            <div class="br-row"><span class="br-lbl">KOR van toepassing (≤ €20k)</span><span class="br-val" id="kor-check">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ OMSLAGPUNT GRAFIEK ══ -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Netto inkomen per winstniveau &mdash; omslagpunt VOF ↔ BV</div>
+        <div id="chart-info">Berekening loopt&hellip;</div>
+        <div id="chart-container"></div>
+        <div class="chart-legend">
+          <span>
+            <svg width="26" height="4"><line x1="0" y1="2" x2="26" y2="2" stroke="#3b82f6" stroke-width="2.5"/></svg>
+            VOF / Eenmanszaak netto inkomen
+          </span>
+          <span>
+            <svg width="26" height="4"><line x1="0" y1="2" x2="26" y2="2" stroke="#a855f7" stroke-width="2.5"/></svg>
+            BV netto inkomen (incl. VPB + box&nbsp;2)
+          </span>
+          <span>
+            <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#d29922"/></svg>
+            Omslagpunt
+          </span>
+          <span>
+            <svg width="14" height="14"><line x1="7" y1="0" x2="7" y2="14" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="4,2"/></svg>
+            Huidige invoer
+          </span>
+          <span style="color:var(--text3)">— Beweeg muis over grafiek voor details</span>
+        </div>
+      </div>
+
+      <!-- Per vennoot (if >1) -->
+      <div id="ven-detail" class="card" style="display:none;margin-bottom:14px">
+        <div class="card-title"><span class="badge badge-vof">VOF</span>&nbsp; Verdeling per vennoot</div>
+        <div id="ven-rows"></div>
+      </div>
+
+      <!-- Scenario table -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Vergelijking op meerdere winstniveaus</div>
+        <div style="overflow-x:auto">
+          <table class="scenario-table">
+            <thead>
+              <tr>
+                <th>Bruto winst</th>
+                <th style="color:var(--vof2)">VOF netto</th>
+                <th style="color:var(--vof2)">VOF eff.%</th>
+                <th style="color:var(--bv2)">BV netto</th>
+                <th style="color:var(--bv2)">BV eff.%</th>
+                <th>Verschil</th>
+                <th>Voordeel</th>
+              </tr>
+            </thead>
+            <tbody id="scenario-body"></tbody>
+          </table>
+        </div>
+        <div class="hint" style="margin-top:6px">* BV met huidige DGA-salaris instelling. Gemarkeerde rij = huidige invoer.</div>
+      </div>
+
+      <!-- Tax parameters reference -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Belastingparameters 2026</div>
+        <div class="params-grid">
+          <div class="params-section">
+            <strong>Box 1 — Inkomstenbelasting</strong>
+            <div class="item">0 – €&nbsp;38.883 &rarr; 35,75%</div>
+            <div class="item">€&nbsp;38.883 – €&nbsp;78.426 &rarr; 37,56%</div>
+            <div class="item">Boven €&nbsp;78.426 &rarr; 49,50%</div>
+            <br>
+            <strong>Heffingskortingen</strong>
+            <div class="item">Alg. heffingskorting: max €&nbsp;3.115 (afbouw boven €&nbsp;29.736)</div>
+            <div class="item">Arbeidskorting: max €&nbsp;5.685 (afbouw boven €&nbsp;45.592)</div>
+          </div>
+          <div class="params-section">
+            <strong>Ondernemer aftrekken</strong>
+            <div class="item">Zelfstandigenaftrek: €&nbsp;1.200 (mits urencriterium ≥ 1.225 uur/jr)</div>
+            <div class="item">MKB-winstvrijstelling: 12,7%</div>
+            <br>
+            <strong>ZVW — Zorgverzekeringswet 2026</strong>
+            <div class="item">Lage bijdrage (ondernemer/ZZP): 4,85%</div>
+            <div class="item">Hoge bijdrage (werkgever/BV): 6,10%</div>
+            <div class="item">Max. bijdragegrondslag: €&nbsp;79.409</div>
+            <br>
+            <strong>Besloten Vennootschap (BV)</strong>
+            <div class="item">VPB: 19% (≤ €&nbsp;200.000) / 25,8% (daarboven)</div>
+            <div class="item">Box 2: 24,5% (≤ €&nbsp;68.843) / 31% (daarboven)</div>
+            <div class="item">Min. gebruikelijk loon DGA: €&nbsp;58.000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="disc">
+        ⚠️ Deze tool geeft een <strong>indicatieve berekening</strong> op basis van vereenvoudigde aannames voor 2026.<br>
+        Er wordt geen rekening gehouden met: pensioenopbouw, zorgtoeslag, toeslagen, andere aftrekposten of specifieke uitzonderingen.<br>
+        Raadpleeg altijd een belastingadviseur of accountant voor uw persoonlijke situatie.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+const S = {
+  partner: false,
+  vennoten: 1,
+  verdeling: [100],
+  dividend: true,
+  korTonen: false,
+  korKlanten: 'b2c',
+  btwTarief: 0.21
+};
+
+// ═══════════════════════════════════════════════════
+//  2025 BELASTINGPARAMETERS
+// ═══════════════════════════════════════════════════
+const P = {
+  // Box 1 schijven 2026 (incl. premies volksverzekeringen, voor AOW-leeftijd)
+  box1: [
+    { max: 38883,    rate: 0.3575 },
+    { max: 78426,    rate: 0.3756 },
+    { max: Infinity, rate: 0.4950 }
+  ],
+
+  // Algemene heffingskorting 2026
+  ahkMax:        3115,
+  ahkAfbStart:   29736,
+  ahkAfbEinde:   78426,
+
+  // Arbeidskorting 2026 — 3 opbouwfasen + afbouw
+  akMax:         5685,
+  akFase1Einde:  11965,   akFase1Rate:  0.08324,
+  akFase2Einde:  25845,   akFase2Rate:  0.31009,
+  akFase3Einde:  45592,   akFase3Rate:  0.01950,
+  akAfbRate:     0.06510, akAfbEinde:   132920,
+
+  // Ondernemer
+  za:            1200,
+  mkb:           0.127,
+  urenmin:       1225,
+
+  // VPB (ongewijzigd 2026)
+  vpb: [
+    { max: 200000,   rate: 0.19  },
+    { max: Infinity, rate: 0.258 }
+  ],
+
+  // Box 2 2026 (aanmerkelijk belang) — hoog tarief verlaagd van 33% naar 31%
+  box2: [
+    { max: 68843,    rate: 0.245 },
+    { max: Infinity, rate: 0.31  }
+  ],
+
+  gebruikelijkLoon: 58000,
+
+  // ZVW — inkomensafhankelijke bijdrage Zorgverzekeringswet 2026
+  zvwLaag: 0.0485,   // ondernemer / ZZP (lage bijdrage)
+  zvwHoog: 0.0610,   // werkgever / BV  (werkgeversheffing)
+  zvwMax:  79409     // max bijdragegrondslag
+};
+
+// ═══════════════════════════════════════════════════
+//  BELASTINGBEREKENINGEN
+// ═══════════════════════════════════════════════════
+function calcSchijven(inkomen, schijven) {
+  if (inkomen <= 0) return 0;
+  let tax = 0, prev = 0;
+  for (const s of schijven) {
+    const top = Math.min(inkomen, s.max);
+    tax += (top - prev) * s.rate;
+    prev = top;
+    if (inkomen <= s.max) break;
+  }
+  return tax;
+}
+
+function calcAHK(inkomen) {
+  if (inkomen <= P.ahkAfbStart) return P.ahkMax;
+  if (inkomen >= P.ahkAfbEinde) return 0;
+  const factor = (inkomen - P.ahkAfbStart) / (P.ahkAfbEinde - P.ahkAfbStart);
+  return Math.max(0, P.ahkMax * (1 - factor));
+}
+
+function calcAK(inkomen) {
+  if (inkomen <= 0) return 0;
+  let ak;
+  const fase1Top = P.akFase1Einde * P.akFase1Rate;
+  const fase2Top = fase1Top + (P.akFase2Einde - P.akFase1Einde) * P.akFase2Rate;
+  if (inkomen <= P.akFase1Einde) {
+    ak = inkomen * P.akFase1Rate;
+  } else if (inkomen <= P.akFase2Einde) {
+    ak = fase1Top + (inkomen - P.akFase1Einde) * P.akFase2Rate;
+  } else if (inkomen <= P.akFase3Einde) {
+    ak = fase2Top + (inkomen - P.akFase2Einde) * P.akFase3Rate;
+  } else if (inkomen <= P.akAfbEinde) {
+    ak = P.akMax - (inkomen - P.akFase3Einde) * P.akAfbRate;
+  } else {
+    ak = 0;
+  }
+  return Math.max(0, Math.min(P.akMax, ak));
+}
+
+function calcBox1Net(inkomen) {
+  const bruto = calcSchijven(inkomen, P.box1);
+  const ahk   = calcAHK(inkomen);
+  const ak    = calcAK(inkomen);
+  return Math.max(0, bruto - ahk - ak);
+}
+
+// ─── VOF vennoot ───
+function calcVennoot(winst, urenOk) {
+  const za          = urenOk ? P.za : 0;
+  const wInstNaZA   = Math.max(0, winst - za);
+  const mkb         = wInstNaZA * P.mkb;
+  const belastbaar  = Math.max(0, wInstNaZA - mkb);
+  const ibBruto     = calcSchijven(belastbaar, P.box1);
+  const ahk         = calcAHK(belastbaar);
+  // arbeidskorting grondslag = winst uit onderneming (vóór aftrekken)
+  const ak          = calcAK(winst);
+  const ibNetto     = Math.max(0, ibBruto - ahk - ak);
+  // ZVW bijdrage ondernemer (lage bijdrage, over belastbaar inkomen, max grondslag)
+  const zvwGrondslag = Math.min(Math.max(0, belastbaar), P.zvwMax);
+  const zvw          = zvwGrondslag * P.zvwLaag;
+  const totaalBel    = ibNetto + zvw;
+  return { winst, za, wInstNaZA, mkb, belastbaar, ibBruto, ahk, ak, ibNetto,
+           zvw, zvwGrondslag, totaalBel,
+           netto: winst - totaalBel,
+           effTarief: winst > 0 ? totaalBel / winst : 0 };
+}
+
+// ─── BV ───
+function calcBV(brutoWinst, dgaSalaris, dividendUit) {
+  const sal            = Math.max(0, Math.min(dgaSalaris, brutoWinst));
+  // ZVW werkgeversheffing — extra loonkost voor de BV (aftrekbaar voor VPB)
+  const zvwWerkgever   = Math.min(sal, P.zvwMax) * P.zvwHoog;
+  const bvLoonkosten   = sal + zvwWerkgever;
+  const bvVoorVPB      = Math.max(0, brutoWinst - bvLoonkosten);
+  const vpb            = calcSchijven(bvVoorVPB, P.vpb);
+  const bvNaVPB        = bvVoorVPB - vpb;
+
+  let box2 = 0, div = 0;
+  if (dividendUit) {
+    box2 = calcSchijven(bvNaVPB, P.box2);
+    div  = bvNaVPB - box2;
+  } else {
+    div = bvNaVPB;
+  }
+
+  const lh          = calcBox1Net(sal);
+  const nettoSal    = sal - lh;
+  const totaalNetto = dividendUit ? nettoSal + div : nettoSal;
+  const totaalBel   = zvwWerkgever + vpb + (dividendUit ? box2 : 0) + lh;
+  return { brutoWinst, sal, zvwWerkgever, bvLoonkosten, bvVoorVPB, vpb, bvNaVPB, box2, div,
+           lh, nettoSal, totaalNetto, totaalBel,
+           effTarief: brutoWinst > 0 ? totaalBel / brutoWinst : 0 };
+}
+
+// ═══════════════════════════════════════════════════
+//  FORMATTERING
+// ═══════════════════════════════════════════════════
+function fmt(n) {
+  if (n == null) return '—';
+  return '€\u202f' + Math.round(n).toLocaleString('nl-NL');
+}
+function fmtPct(n) {
+  return (n * 100).toFixed(1) + '%';
+}
+function set(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+function setCls(id, cls) {
+  const el = document.getElementById(id);
+  if (el) { el.className = el.className.replace(/\s*active(?:-bv)?\b/g, ''); el.classList.add(cls); }
+}
+
+// ═══════════════════════════════════════════════════
+//  HOOFDBEREKENING + RENDER
+// ═══════════════════════════════════════════════════
+function calculate() {
+  const bruto      = Math.max(0, parseFloat(document.getElementById('brutowinst').value)    || 0);
+  const urenPW     = Math.max(0, parseFloat(document.getElementById('urenperweek').value)   || 0);
+  const dgaSal     = Math.max(0, parseFloat(document.getElementById('dgasalaris').value)    || 0);
+  const urenPJ     = urenPW * 52;
+  const urenOk     = urenPJ >= P.urenmin;
+
+  // ── Uren hint ──
+  const urenEl = document.getElementById('uren-hint');
+  urenEl.textContent = `${Math.round(urenPW)}u × 52 = ${Math.round(urenPJ).toLocaleString('nl-NL')}u/jaar → ` +
+    (urenOk ? '✓ Urencriterium gehaald' : '✗ Urencriterium NIET gehaald (geen zelfstandigenaftrek)');
+  urenEl.className = 'hint ' + (urenOk ? 'ok' : 'warn');
+
+  // ── DGA hint ──
+  const dgaEl = document.getElementById('dga-hint');
+  if (dgaSal < P.gebruikelijkLoon && bruto >= P.gebruikelijkLoon) {
+    dgaEl.textContent = `⚠ Minimum gebruikelijk loon €\u202f${P.gebruikelijkLoon.toLocaleString('nl-NL')} — in berekening wordt minimum gehanteerd`;
+    dgaEl.className = 'hint warn';
+  } else {
+    dgaEl.textContent = `Minimum gebruikelijk loon 2026: €\u202f58.000`;
+    dgaEl.className = 'hint';
+  }
+
+  // ── Alerts ──
+  let alertsHtml = '';
+  if (bruto < P.gebruikelijkLoon && bruto > 0) {
+    alertsHtml += `<div class="alert">⚠️ Bruto winst (${fmt(bruto)}) ligt onder het minimum DGA-salaris van ${fmt(P.gebruikelijkLoon)}.
+      Een BV is bij deze winstomvang vaak niet rendabel.</div>`;
+  }
+  if (!urenOk && urenPW > 0) {
+    alertsHtml += `<div class="alert">⚠️ Met ${Math.round(urenPW)} uur/week (${Math.round(urenPJ)} uur/jaar) haalt u het urencriterium
+      van ${P.urenmin} uur niet. Er geldt <strong>geen</strong> zelfstandigenaftrek.</div>`;
+  }
+  document.getElementById('alerts').innerHTML = alertsHtml;
+
+  // ── VOF berekening (per vennoot) ──
+  const vennoten = S.verdeling.map(pct => calcVennoot(bruto * pct / 100, urenOk));
+  const vofTotNetto = vennoten.reduce((s, v) => s + v.netto, 0);
+  const vofTotBel   = vennoten.reduce((s, v) => s + v.totaalBel, 0);
+  const vofEff      = bruto > 0 ? vofTotBel / bruto : 0;
+  const v0          = vennoten[0]; // eerste vennoot voor single-vennoot display
+
+  // ── BV berekening ──
+  const bv = calcBV(bruto, Math.max(dgaSal, bruto >= P.gebruikelijkLoon ? P.gebruikelijkLoon : dgaSal), S.dividend);
+
+  // ══ UPDATE VOF CARD ══
+  const vofNettoDisplay = S.vennoten > 1 ? vofTotNetto : v0.netto;
+  const vofEffDisplay   = S.vennoten > 1 ? vofEff : v0.effTarief;
+  const vofBelDisplay   = S.vennoten > 1 ? vofTotBel : v0.ibNetto;
+  const vofBrutoDisplay = S.vennoten > 1 ? bruto : v0.winst;
+
+  set('vof-netto', fmt(vofNettoDisplay));
+  set('vof-rate', fmtPct(vofEffDisplay) + ' effectief belastingtarief' + (S.vennoten > 1 ? ' (gecombineerd)' : ''));
+
+  const vofNetPct = bruto > 0 ? Math.max(5, Math.min(95, vofNettoDisplay / bruto * 100)) : 70;
+  set('vof-bar-net', `${Math.round(vofNetPct)}% netto`);
+  set('vof-bar-tax', `${Math.round(100 - vofNetPct)}% tax`);
+  document.getElementById('vof-bar-net').style.width = vofNetPct + '%';
+  document.getElementById('vof-bar-tax').style.width = (100 - vofNetPct) + '%';
+
+  // Breakdown (eerste vennoot / totaal)
+  const vDisp = S.vennoten === 1 ? v0 : {
+    winst: bruto,
+    za:    vennoten.reduce((s,v)=>s+v.za,0),
+    mkb:   vennoten.reduce((s,v)=>s+v.mkb,0),
+    belastbaar: vennoten.reduce((s,v)=>s+v.belastbaar,0),
+    ibBruto: vennoten.reduce((s,v)=>s+v.ibBruto,0),
+    ahk:   vennoten.reduce((s,v)=>s+v.ahk,0),
+    ak:    vennoten.reduce((s,v)=>s+v.ak,0),
+    ibNetto: vennoten.reduce((s,v)=>s+v.ibNetto,0),
+    zvw:   vennoten.reduce((s,v)=>s+v.zvw,0),
+    netto: vofTotNetto
+  };
+  const venLabel = S.vennoten > 1 ? ' (totaal alle vennoten)' : '';
+  set('v-bruto',    fmt(vDisp.winst));
+  set('v-za',       '−' + fmt(vDisp.za)   + (vDisp.za === 0 ? ' <span style="color:var(--text3)">(geen urencriterium)</span>' : ''));
+  set('v-mkb',      '−' + fmt(vDisp.mkb)  + venLabel);
+  set('v-belastbaar', fmt(vDisp.belastbaar) + venLabel);
+  set('v-ib-bruto', fmt(vDisp.ibBruto)    + venLabel);
+  set('v-ahk',      '−' + fmt(vDisp.ahk)  + venLabel);
+  set('v-ak',       '−' + fmt(vDisp.ak)   + venLabel);
+  set('v-ib-netto', fmt(vDisp.ibNetto)    + venLabel);
+  set('v-zvw',      fmt(vDisp.zvw)        + venLabel);
+  set('v-netto2',   fmt(vDisp.netto)      + venLabel);
+
+  // ══ UPDATE BV CARD ══
+  set('bv-netto', fmt(bv.totaalNetto));
+  set('bv-rate',  fmtPct(bv.effTarief) + ' effectief belastingtarief');
+
+  const bvNetPct = bruto > 0 ? Math.max(5, Math.min(95, bv.totaalNetto / bruto * 100)) : 70;
+  set('bv-bar-net', `${Math.round(bvNetPct)}% netto`);
+  set('bv-bar-tax', `${Math.round(100 - bvNetPct)}% tax`);
+  document.getElementById('bv-bar-net').style.width = bvNetPct + '%';
+  document.getElementById('bv-bar-tax').style.width = (100 - bvNetPct) + '%';
+
+  set('b-bruto',       fmt(bv.brutoWinst));
+  set('b-salaris',     '−' + fmt(bv.sal));
+  set('b-zvw-wg',      '−' + fmt(bv.zvwWerkgever));
+  set('b-winst-vpb',   fmt(bv.bvVoorVPB));
+  set('b-vpb',         '−' + fmt(bv.vpb));
+  set('b-winst-na-vpb', fmt(bv.bvNaVPB));
+  set('b-box2-lbl',    S.dividend ? 'Box&nbsp;2 belasting (dividend)' : 'Box&nbsp;2 belasting (uitgesteld, niet uitgestort)');
+  set('b-box2',        S.dividend ? '−' + fmt(bv.box2) : '−€\u202f0 <span style="color:var(--text3)">(nu nog niet)</span>');
+  set('b-div',         fmt(bv.div) + (S.dividend ? '' : ' <span style="color:var(--text3)">(in BV)</span>'));
+  set('b-lh',          '−' + fmt(bv.lh));
+  set('b-netto-sal',   fmt(bv.nettoSal));
+  set('b-netto2',      fmt(bv.totaalNetto));
+
+  // ══ PER VENNOOT DETAIL ══
+  const venDetail = document.getElementById('ven-detail');
+  if (S.vennoten > 1) {
+    venDetail.style.display = 'block';
+    let html = '';
+    vennoten.forEach((v, i) => {
+      html += `<div class="ven-card">
+        <div class="ven-name">Vennoot ${i + 1} &mdash; ${S.verdeling[i]}% van winst = ${fmt(v.winst)}</div>
+        <div class="ven-grid">
+          <div class="ven-item"><div class="lbl">Zelfstandigenaftrek</div><div class="val" style="color:var(--green)">${v.za>0?'−'+fmt(v.za):'−€\u202f0'}</div></div>
+          <div class="ven-item"><div class="lbl">MKB-vrijstelling</div><div class="val" style="color:var(--green)">−${fmt(v.mkb)}</div></div>
+          <div class="ven-item"><div class="lbl">Belastbaar inkomen</div><div class="val">${fmt(v.belastbaar)}</div></div>
+          <div class="ven-item"><div class="lbl">IB te betalen</div><div class="val" style="color:var(--red)">${fmt(v.ibNetto)}</div></div>
+          <div class="ven-item"><div class="lbl">Premie ZVW (4,85%)</div><div class="val" style="color:var(--red)">−${fmt(v.zvw)}</div></div>
+          <div class="ven-item"><div class="lbl">Netto inkomen</div><div class="val" style="color:var(--vof2);font-size:.95rem">${fmt(v.netto)}</div></div>
+          <div class="ven-item"><div class="lbl">Effectief tarief</div><div class="val">${fmtPct(v.effTarief)}</div></div>
+        </div>
+      </div>`;
+    });
+    document.getElementById('ven-rows').innerHTML = html;
+  } else {
+    venDetail.style.display = 'none';
+  }
+
+  // ══ WINNER BANNER ══
+  const diff = vofTotNetto - bv.totaalNetto;
+  const winnerEl = document.getElementById('winner');
+  if (Math.abs(diff) < 500) {
+    winnerEl.className = 'winner tie';
+    winnerEl.style.display = 'block';
+    set('winner-title', '≈ Beide vormen zijn nagenoeg gelijkwaardig');
+    set('winner-sub', `Verschil minder dan ${fmt(500)} — overweeg ook niet-fiscale factoren`);
+  } else if (diff > 0) {
+    winnerEl.className = 'winner vof';
+    winnerEl.style.display = 'block';
+    set('winner-title', '✓ VOF / Eenmanszaak is fiscaal voordeliger bij deze instellingen');
+    set('winner-sub', `U houdt ${fmt(diff)} meer netto inkomen over per jaar`);
+  } else {
+    winnerEl.className = 'winner bv';
+    winnerEl.style.display = 'block';
+    set('winner-title', '✓ BV is fiscaal voordeliger bij deze instellingen');
+    set('winner-sub', `U houdt ${fmt(-diff)} meer netto inkomen over per jaar`);
+  }
+
+  // ══ SCENARIO TABLE ══
+  const scenarios = [30000, 50000, 75000, 100000, 125000, 150000, 200000, 250000, 300000, 400000, 500000];
+  let thtml = '';
+  const dgaSalScen = Math.max(dgaSal, P.gebruikelijkLoon);
+  scenarios.forEach(wb => {
+    const sv = calcVennoot(wb, urenOk); // single vennoot voor vergelijking
+    const sb = calcBV(wb, Math.min(dgaSalScen, wb), S.dividend);
+    const sdiff = sv.netto - sb.totaalNetto;
+    const isCurrent = Math.abs(wb - bruto) < 5000;
+    const winStr = Math.abs(sdiff) < 200
+      ? '<span style="color:var(--text3)">≈ gelijk</span>'
+      : sdiff > 0
+        ? `<span class="winner-cell winner-vof">VOF +${fmt(sdiff)}</span>`
+        : `<span class="winner-cell winner-bv">BV +${fmt(-sdiff)}</span>`;
+    thtml += `<tr class="${isCurrent ? 'active-row' : ''}">
+      <td>${fmt(wb)}${isCurrent ? ' ◀' : ''}</td>
+      <td style="color:var(--vof2)">${fmt(sv.netto)}</td>
+      <td style="color:var(--vof2)">${fmtPct(sv.effTarief)}</td>
+      <td style="color:var(--bv2)">${fmt(sb.totaalNetto)}</td>
+      <td style="color:var(--bv2)">${fmtPct(sb.effTarief)}</td>
+      <td>${fmt(Math.abs(sdiff))}</td>
+      <td>${winStr}</td>
+    </tr>`;
+  });
+  document.getElementById('scenario-body').innerHTML = thtml;
+
+  // ══ KOR ══
+  renderKOR(bruto, urenOk);
+
+  // ══ GRAFIEK ══
+  renderChart(bruto, urenOk, dgaSal, S.dividend);
+}
+
+// ═══════════════════════════════════════════════════
+//  KOR BEREKENING
+// ═══════════════════════════════════════════════════
+function calcKOR(brutoWinst, omzet, btwTarief, inputBTWPct, klanten, urenOk) {
+  const kosten       = Math.max(0, omzet - brutoWinst);    // excl. BTW
+  const btwOmzet     = omzet * btwTarief;
+  const btwInkopen   = omzet * (inputBTWPct / 100);
+  const afTeDragen   = Math.max(0, btwOmzet - btwInkopen);
+
+  // Gecorrigeerde IB-winst voor KOR
+  let korBW;
+  if (klanten === 'b2c') {
+    // Klant betaalt dezelfde totaalprijs (omzet + BTW).
+    // ZZP behoudt BTW maar kan inkoop-BTW niet terugvragen.
+    // Effectieve omzet = omzet + btwOmzet; effectieve kosten = kosten + btwInkopen
+    korBW = (omzet + btwOmzet) - (kosten + btwInkopen);
+    // vereenvoudigd: korBW = brutoWinst + afTeDragen
+  } else {
+    // B2B: klant betaalt netto prijs (geen BTW verwacht).
+    // Omzet ongewijzigd; kosten stijgen met niet-terugvorderbare inkoop-BTW.
+    korBW = omzet - (kosten + btwInkopen);
+    // vereenvoudigd: korBW = brutoWinst - btwInkopen
+  }
+  korBW = Math.max(0, korBW);
+
+  const zonder = calcVennoot(Math.max(0, brutoWinst), urenOk);
+  const met    = calcVennoot(korBW, urenOk);
+
+  return {
+    omzet, kosten, btwOmzet, btwInkopen, afTeDragen,
+    korBW,
+    omzetMetBTW:   omzet + btwOmzet,
+    kostenMetBTW:  kosten + btwInkopen,
+    zonderBW:      brutoWinst,
+    zonderIB:      zonder.ibNetto,
+    zonderNetto:   zonder.netto,
+    metBW:         korBW,
+    metIB:         met.ibNetto,
+    metNetto:      met.netto,
+    voordeel:      met.netto - zonder.netto,
+    korToegepast:  omzet <= 20000
+  };
+}
+
+function renderKOR(brutoWinst, urenOk) {
+  if (!S.korTonen) return;
+
+  const omzet      = Math.max(0, parseFloat(document.getElementById('kor-omzet').value)    || 0);
+  const inputBTWPct = Math.max(0, parseFloat(document.getElementById('kor-inputbtw').value) || 0);
+  const k = calcKOR(brutoWinst, omzet, S.btwTarief, inputBTWPct, S.korKlanten, urenOk);
+
+  // Drempel-hint
+  const drempelEl = document.getElementById('kor-drempel-hint');
+  if (drempelEl) {
+    drempelEl.textContent = omzet <= 20000
+      ? `✓ Omzet (€\u202f${Math.round(omzet).toLocaleString('nl-NL')}) ≤ €\u202f20.000 — KOR van toepassing`
+      : `⚠ Omzet (€\u202f${Math.round(omzet).toLocaleString('nl-NL')}) > €\u202f20.000 — KOR NIET van toepassing`;
+    drempelEl.className = 'hint ' + (omzet <= 20000 ? 'ok' : 'warn');
+  }
+
+  // Applicable banner
+  const appEl = document.getElementById('kor-applicable');
+  if (appEl) {
+    if (omzet === 0) {
+      appEl.style.cssText = 'padding:8px 12px;border-radius:var(--r2);font-size:.8rem;font-weight:600;margin-bottom:14px;background:var(--orange-dim);border:1px solid rgba(210,153,34,.4);color:var(--orange)';
+      appEl.textContent = '⚠ Vul een jaaromzet in om de KOR-berekening te starten.';
+    } else if (k.korToegepast) {
+      appEl.style.cssText = 'padding:8px 12px;border-radius:var(--r2);font-size:.8rem;font-weight:600;margin-bottom:14px;background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.35);color:#2dd4bf';
+      appEl.textContent = `✓ KOR van toepassing — omzet €\u202f${Math.round(omzet).toLocaleString('nl-NL')} ≤ €\u202f20.000 drempel`;
+    } else {
+      appEl.style.cssText = 'padding:8px 12px;border-radius:var(--r2);font-size:.8rem;font-weight:600;margin-bottom:14px;background:var(--orange-dim);border:1px solid rgba(210,153,34,.4);color:var(--orange)';
+      appEl.textContent = `⚠ KOR NIET van toepassing — omzet €\u202f${Math.round(omzet).toLocaleString('nl-NL')} > €\u202f20.000 drempel (ter referentie getoond)`;
+    }
+  }
+
+  // Kolom titels aanpassen op klanttype
+  const isB2C = S.korKlanten === 'b2c';
+  set('kor-met-col-title', isB2C ? 'ZZP MET KOR — B2C' : 'ZZP MET KOR — B2B');
+  set('km-omzet-lbl', isB2C ? 'Omzet (zelfde prijs incl. BTW)' : 'Omzet (excl. BTW, ongewijzigd)');
+
+  // Zonder KOR
+  set('kz-omzet',  fmt(k.omzet));
+  set('kz-kosten', '−' + fmt(k.kosten));
+  set('kz-bw',     fmt(k.zonderBW));
+  set('kz-btw',    '−' + fmt(k.afTeDragen) + ' (kasstroompost)');
+  set('kz-ib',     '−' + fmt(k.zonderIB));
+  set('kz-netto',  fmt(k.zonderNetto));
+
+  // Met KOR
+  set('km-omzet',  fmt(isB2C ? k.omzetMetBTW : k.omzet));
+  set('km-kosten', '−' + fmt(k.kostenMetBTW));
+  set('km-bw',     fmt(k.metBW));
+  set('km-btw',    '€\u202f0 ✓');
+  set('km-ib',     '−' + fmt(k.metIB));
+  set('km-netto',  fmt(k.metNetto));
+
+  // Netto kleur voor KOR column
+  const kmNettoEl = document.getElementById('km-netto');
+  if (kmNettoEl) kmNettoEl.style.color = k.voordeel >= 0 ? '#2dd4bf' : 'var(--red)';
+
+  // BTW breakdown
+  set('kor-btw-omzet',   fmt(k.btwOmzet));
+  set('kor-btw-inkopen', fmt(k.btwInkopen));
+  set('kor-afdragen',    '−' + fmt(k.afTeDragen));
+  set('kor-check', k.korToegepast
+    ? '<span style="color:#2dd4bf;font-weight:700">✓ Ja</span>'
+    : '<span style="color:var(--orange);font-weight:700">✗ Nee</span>');
+
+  // Voordeel banner
+  const voordeelEl = document.getElementById('kor-voordeel');
+  if (voordeelEl) {
+    const abs = Math.abs(k.voordeel);
+    if (abs < 100) {
+      voordeelEl.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:var(--r2);font-size:.85rem;text-align:center;font-weight:600;line-height:1.6;background:var(--green-dim);border:1px solid rgba(63,185,80,.3);color:var(--green)';
+      voordeelEl.textContent = '≈ KOR heeft nauwelijks effect op het netto inkomen bij deze instellingen';
+    } else if (k.voordeel > 0) {
+      voordeelEl.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:var(--r2);font-size:.85rem;text-align:center;font-weight:600;line-height:1.6;background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.35);color:#2dd4bf';
+      voordeelEl.innerHTML = `KOR levert <strong>${fmt(abs)}</strong> meer netto inkomen op — van ${fmt(k.zonderNetto)} naar ${fmt(k.metNetto)}<br><span style="font-weight:400;font-size:.78rem;color:var(--text2)">Dit is het netto IB-voordeel na aftrek van hogere IB door hogere winst.</span>`;
+    } else {
+      voordeelEl.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:var(--r2);font-size:.85rem;text-align:center;font-weight:600;line-height:1.6;background:var(--red-dim);border:1px solid rgba(248,81,73,.3);color:var(--red)';
+      voordeelEl.innerHTML = `KOR is <strong>nadelig</strong>: ${fmt(abs)} minder netto inkomen — van ${fmt(k.zonderNetto)} naar ${fmt(k.metNetto)}<br><span style="font-weight:400;font-size:.78rem;color:var(--text2)">Bij B2B-klanten verliest u de inkoop-BTW zonder compensatie.</span>`;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  GRAFIEK
+// ═══════════════════════════════════════════════════
+let chartData   = [];
+let chartParams = null;
+
+function renderChart(bruto, urenOk, dgaSal, dividend) {
+  const STEPS = 200;
+  const MAX_X = 500000;
+  const W = 800, H = 280;
+  const PAD = { l: 68, r: 24, t: 32, b: 44 };
+  const PW  = W - PAD.l - PAD.r;
+  const PH  = H - PAD.t - PAD.b;
+  const dgaEff = Math.max(dgaSal, P.gebruikelijkLoon);
+
+  // ── Bereken datapunten ──
+  chartData = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const x   = (i / STEPS) * MAX_X;
+    const v   = calcVennoot(x, urenOk);
+    const b   = calcBV(x, Math.min(dgaEff, x), dividend);
+    chartData.push({ x, vof: v.netto, bv: b.totaalNetto });
+  }
+
+  // ── Y-schaal ──
+  const maxY = Math.max(...chartData.map(p => Math.max(p.vof, p.bv, 0)));
+  const yMax = Math.max(100000, Math.ceil(maxY / 50000) * 50000);
+  chartParams = { MAX_X, PAD, PW, PH, yMax, W, H };
+
+  // ── Coördinaten ──
+  const tx = x => PAD.l + (x / MAX_X) * PW;
+  const ty = y => PAD.t + PH - Math.max(0, Math.min(1, y / yMax)) * PH;
+
+  // ── Omslagpunten ──
+  const crossovers = [];
+  for (let i = 1; i < chartData.length; i++) {
+    const p = chartData[i-1], c = chartData[i];
+    const pd = p.vof - p.bv, cd = c.vof - c.bv;
+    if (pd * cd < 0) {
+      const t = pd / (pd - cd);
+      crossovers.push({
+        x:   p.x   + t * (c.x   - p.x),
+        y:   p.vof + t * (c.vof - p.vof),
+        idx: i
+      });
+    }
+  }
+
+  // ── Padstrings ──
+  const vofPts = chartData.map((p,i) => `${i===0?'M':'L'}${tx(p.x).toFixed(1)},${ty(p.vof).toFixed(1)}`).join('');
+  const bvPts  = chartData.map((p,i) => `${i===0?'M':'L'}${tx(p.x).toFixed(1)},${ty(p.bv ).toFixed(1)}`).join('');
+
+  // ── Gebieden tussen de lijnen (welke vorm is hoger) ──
+  let regions = [], rStart = 0;
+  let rAbove  = chartData[0].vof >= chartData[0].bv ? 'vof' : 'bv';
+  crossovers.forEach(cr => {
+    regions.push({ from: rStart, to: cr.idx, above: rAbove });
+    rStart = cr.idx;
+    rAbove = rAbove === 'vof' ? 'bv' : 'vof';
+  });
+  regions.push({ from: rStart, to: STEPS, above: rAbove });
+
+  // ── Y-ticks ──
+  const yStep = yMax <= 250000 ? 50000 : 100000;
+  const yTicks = [];
+  for (let y = 0; y <= yMax; y += yStep) yTicks.push(y);
+
+  // ──────────────────── SVG opbouwen ────────────────────
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<defs><clipPath id="cplt"><rect x="${PAD.l}" y="${PAD.t}" width="${PW}" height="${PH}"/></clipPath></defs>`;
+
+  // Rasterlijnen Y
+  yTicks.forEach(y => {
+    const sy = ty(y).toFixed(1);
+    s += `<line x1="${PAD.l}" y1="${sy}" x2="${(PAD.l+PW).toFixed(1)}" y2="${sy}" stroke="#22272e" stroke-width="1"/>`;
+    const lbl = y === 0 ? '€0' : `€${Math.round(y/1000)}k`;
+    s += `<text x="${(PAD.l-8).toFixed(1)}" y="${(+sy+3.5).toFixed(1)}" text-anchor="end" font-size="11" font-family="inherit" fill="#6e7681">${lbl}</text>`;
+  });
+
+  // Rasterlijnen X
+  [0,100000,200000,300000,400000,500000].forEach(x => {
+    const sx = tx(x).toFixed(1);
+    s += `<line x1="${sx}" y1="${PAD.t}" x2="${sx}" y2="${(PAD.t+PH).toFixed(1)}" stroke="#22272e" stroke-width="1"/>`;
+    s += `<text x="${sx}" y="${(PAD.t+PH+16).toFixed(1)}" text-anchor="middle" font-size="11" font-family="inherit" fill="#6e7681">€${Math.round(x/1000)}k</text>`;
+  });
+
+  // X-as label
+  s += `<text x="${(PAD.l+PW/2).toFixed(1)}" y="${(H-4).toFixed(1)}" text-anchor="middle" font-size="10.5" font-family="inherit" fill="#6e7681">Bruto winst per jaar</text>`;
+
+  // ── Geclipte plotinhoud ──
+  s += `<g clip-path="url(#cplt)">`;
+
+  // Ingekleurde gebieden tussen lijnen
+  regions.forEach(reg => {
+    const pts = chartData.slice(reg.from, Math.min(reg.to + 1, chartData.length));
+    if (pts.length < 2) return;
+    const top = pts.map(p => `${tx(p.x).toFixed(1)},${ty(reg.above==='vof'?p.vof:p.bv).toFixed(1)}`);
+    const bot = [...pts].reverse().map(p => `${tx(p.x).toFixed(1)},${ty(reg.above==='vof'?p.bv:p.vof).toFixed(1)}`);
+    const fill = reg.above === 'vof' ? 'rgba(59,130,246,0.13)' : 'rgba(168,85,247,0.13)';
+    s += `<path d="M${top.join('L')}L${bot.join('L')}Z" fill="${fill}" stroke="none"/>`;
+  });
+
+  // Omslagpunt verticale lijnen
+  crossovers.forEach(cr => {
+    s += `<line x1="${tx(cr.x).toFixed(1)}" y1="${PAD.t}" x2="${tx(cr.x).toFixed(1)}" y2="${(PAD.t+PH).toFixed(1)}" stroke="rgba(210,153,34,0.55)" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+  });
+
+  // Huidige bruto winst (verticale stippellijn)
+  if (bruto > 0 && bruto <= MAX_X) {
+    s += `<line x1="${tx(bruto).toFixed(1)}" y1="${PAD.t}" x2="${tx(bruto).toFixed(1)}" y2="${(PAD.t+PH).toFixed(1)}" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+  }
+
+  // Hoofdlijnen
+  s += `<path d="${vofPts}" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  s += `<path d="${bvPts}"  fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  // Huidige positie stippen
+  if (bruto > 0 && bruto <= MAX_X) {
+    const cv = calcVennoot(bruto, urenOk);
+    const cb = calcBV(bruto, Math.min(dgaEff, bruto), dividend);
+    s += `<circle cx="${tx(bruto).toFixed(1)}" cy="${ty(cv.netto).toFixed(1)}" r="5" fill="#3b82f6" stroke="#1c2128" stroke-width="2.5"/>`;
+    s += `<circle cx="${tx(bruto).toFixed(1)}" cy="${ty(cb.totaalNetto).toFixed(1)}" r="5" fill="#a855f7" stroke="#1c2128" stroke-width="2.5"/>`;
+  }
+
+  s += `</g>`; // einde clip-path
+
+  // Omslagpunt cirkels (buiten clip zodat ze volledig zichtbaar zijn)
+  crossovers.forEach(cr => {
+    s += `<circle cx="${tx(cr.x).toFixed(1)}" cy="${ty(cr.y).toFixed(1)}" r="6" fill="#d29922" stroke="#1c2128" stroke-width="2.5"/>`;
+  });
+
+  // Assen
+  s += `<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${(PAD.t+PH).toFixed(1)}" stroke="#6e7681" stroke-width="1.5"/>`;
+  s += `<line x1="${PAD.l}" y1="${(PAD.t+PH).toFixed(1)}" x2="${(PAD.l+PW).toFixed(1)}" y2="${(PAD.t+PH).toFixed(1)}" stroke="#6e7681" stroke-width="1.5"/>`;
+
+  // Omslagpunt labels
+  crossovers.forEach(cr => {
+    const cx  = tx(cr.x);
+    const toRight = cx < W * 0.62;
+    const lx  = (toRight ? cx + 7 : cx - 7).toFixed(1);
+    const anc = toRight ? 'start' : 'end';
+    s += `<text x="${lx}" y="${(PAD.t+14).toFixed(1)}" text-anchor="${anc}" font-size="11.5" font-weight="700" font-family="inherit" fill="#d29922">omslagpunt ≈ €${Math.round(cr.x/1000)}k</text>`;
+  });
+
+  // Regio-labels (VOF / BV beter)
+  if (crossovers.length > 0) {
+    const cr0 = crossovers[0];
+    const lblY = (PAD.t + 14).toFixed(1);
+    if (cr0.x > 50000)
+      s += `<text x="${tx(cr0.x/2).toFixed(1)}" y="${lblY}" text-anchor="middle" font-size="10.5" font-family="inherit" fill="rgba(96,165,250,0.65)">▲ VOF voordeliger</text>`;
+    if (cr0.x < MAX_X - 50000)
+      s += `<text x="${tx((cr0.x+MAX_X)/2).toFixed(1)}" y="${lblY}" text-anchor="middle" font-size="10.5" font-family="inherit" fill="rgba(192,132,252,0.65)">▲ BV voordeliger</text>`;
+  }
+
+  // ── Tooltip-groep (buiten clip, tekent als laatste = bovenop) ──
+  s += `<g id="chart-tt" style="display:none;pointer-events:none">`;
+  s += `<line id="ct-vl" y1="${PAD.t}" y2="${(PAD.t+PH).toFixed(1)}" stroke="#e6edf3" stroke-width="1" stroke-dasharray="3,2" stroke-opacity="0.4"/>`;
+  s += `<circle id="ct-dv" r="4" fill="#3b82f6" stroke="#e6edf3" stroke-width="1.5"/>`;
+  s += `<circle id="ct-db" r="4" fill="#a855f7" stroke="#e6edf3" stroke-width="1.5"/>`;
+  s += `<rect id="ct-bg" rx="6" ry="6" width="168" height="76" fill="#1c2128" stroke="#30363d" stroke-width="1"/>`;
+  s += `<text id="ct-t1" font-size="11" font-weight="700" font-family="inherit" fill="#e6edf3"/>`;
+  s += `<text id="ct-t2" font-size="10.5" font-family="inherit" fill="#60a5fa"/>`;
+  s += `<text id="ct-t3" font-size="10.5" font-family="inherit" fill="#c084fc"/>`;
+  s += `<text id="ct-t4" font-size="10.5" font-family="inherit"/>`;
+  s += `</g>`;
+
+  // Transparante overlay voor muisgebeurtenissen (laatste = ontvangt events)
+  s += `<rect x="${PAD.l}" y="${PAD.t}" width="${PW}" height="${PH}" fill="transparent"`;
+  s += ` onmousemove="chartHover(event,this.closest('svg'))" onmouseleave="chartLeave()"/>`;
+  s += `</svg>`;
+
+  document.getElementById('chart-container').innerHTML = s;
+
+  // ── Info-tekst omslagpunt ──
+  const infoEl = document.getElementById('chart-info');
+  if (!infoEl) return;
+  if (crossovers.length === 0) {
+    const isVOF = chartData[1] && chartData[1].vof >= chartData[1].bv;
+    infoEl.innerHTML = isVOF
+      ? `<span style="color:var(--vof2)">✓ VOF/Eenmanszaak is in het hele bereik (€0–€500k) voordeliger met de huidige instellingen.</span>`
+      : `<span style="color:var(--bv2)">✓ BV is in het hele bereik (€0–€500k) voordeliger met de huidige instellingen.</span>`;
+    return;
+  }
+  // Zoek het omslagpunt waarbij BV beter wordt
+  const bvCross = crossovers.find(cr => {
+    const tx2 = cr.x + 10000;
+    const v2  = calcVennoot(tx2, urenOk);
+    const b2  = calcBV(tx2, Math.min(dgaEff, tx2), dividend);
+    return b2.totaalNetto > v2.netto;
+  });
+  if (bvCross) {
+    const ci = Math.round(bvCross.x);
+    const better = bruto >= ci
+      ? `<strong style="color:var(--bv2)">BV is nu voordeliger</strong>`
+      : `<strong style="color:var(--vof2)">VOF is nu voordeliger</strong>`;
+    infoEl.innerHTML =
+      `BV wordt fiscaal voordeliger boven een bruto winst van ` +
+      `<strong style="color:var(--orange)">€\u202f${ci.toLocaleString('nl-NL')}</strong> per jaar. ` +
+      `Bij uw huidige invoer (${fmt(bruto)}): ${better}.`;
+  } else {
+    infoEl.innerHTML = crossovers.map(cr =>
+      `Omslagpunt bij <strong style="color:var(--orange)">€\u202f${Math.round(cr.x).toLocaleString('nl-NL')}</strong>`
+    ).join(' &amp; ');
+  }
+}
+
+function chartHover(evt, svgEl) {
+  if (!chartData.length || !chartParams) return;
+  const { MAX_X, PAD, PW, PH, yMax } = chartParams;
+  const bbox   = svgEl.getBoundingClientRect();
+  const scaleX = 800 / bbox.width;
+  const mouseX = (evt.clientX - bbox.left) * scaleX;
+  const plotX  = mouseX - PAD.l;
+  if (plotX < 0 || plotX > PW) { chartLeave(); return; }
+
+  const income = Math.max(0, Math.min(MAX_X, (plotX / PW) * MAX_X));
+  const idx    = Math.min(chartData.length - 1, Math.round((income / MAX_X) * (chartData.length - 1)));
+  const pt     = chartData[idx];
+
+  const tx = x => PAD.l + (x / MAX_X) * PW;
+  const ty = y => PAD.t + PH - Math.max(0, Math.min(1, y / yMax)) * PH;
+
+  const cx = tx(pt.x);
+  const vy = ty(pt.vof);
+  const by = ty(pt.bv);
+
+  const tt = document.getElementById('chart-tt');
+  if (!tt) return;
+  tt.style.display = 'block';
+
+  const vl = document.getElementById('ct-vl');
+  vl.setAttribute('x1', cx.toFixed(1)); vl.setAttribute('x2', cx.toFixed(1));
+  document.getElementById('ct-dv').setAttribute('cx', cx.toFixed(1));
+  document.getElementById('ct-dv').setAttribute('cy', vy.toFixed(1));
+  document.getElementById('ct-db').setAttribute('cx', cx.toFixed(1));
+  document.getElementById('ct-db').setAttribute('cy', by.toFixed(1));
+
+  const diff    = pt.vof - pt.bv;
+  const fmtK    = v => '€\u202f' + Math.round(v / 1000) + 'k';
+  const diffStr = Math.abs(diff) < 500 ? '≈ gelijk'
+    : diff > 0 ? `VOF +${fmtK(diff)} beter`
+    : `BV +${fmtK(-diff)} beter`;
+  const diffCol = Math.abs(diff) < 500 ? '#6e7681' : diff > 0 ? '#60a5fa' : '#c084fc';
+
+  const ttW = 168, ttH = 76;
+  let ttX = cx + 14;
+  let ttY = Math.min(vy, by) - 6;
+  if (ttX + ttW > 800 - PAD.r + 8) ttX = cx - ttW - 14;
+  ttY = Math.max(PAD.t + 2, Math.min(PAD.t + PH - ttH - 2, ttY));
+
+  const bg = document.getElementById('ct-bg');
+  bg.setAttribute('x', ttX.toFixed(1));
+  bg.setAttribute('y', ttY.toFixed(1));
+
+  const st = (id, dx, dy, txt, col) => {
+    const el = document.getElementById(id);
+    el.setAttribute('x', (ttX + dx).toFixed(1));
+    el.setAttribute('y', (ttY + dy).toFixed(1));
+    el.textContent = txt;
+    if (col) el.style.fill = col;
+  };
+  st('ct-t1', 8, 17, `€\u202f${Math.round(pt.x/1000)}k bruto winst`);
+  st('ct-t2', 8, 31, `VOF: ${fmtK(pt.vof)} netto`);
+  st('ct-t3', 8, 45, `BV:   ${fmtK(pt.bv)} netto`);
+  st('ct-t4', 8, 59, diffStr, diffCol);
+}
+
+function chartLeave() {
+  const tt = document.getElementById('chart-tt');
+  if (tt) tt.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════
+//  KVK HANDELSREGISTER KOPPELING
+// ═══════════════════════════════════════════════════
+let kvkBedrijf  = null;
+let kvkEnv      = 'test';
+let kvkVennoten = 2; // gekozen aantal vennoten bij VOF
+
+const KVK_TEST_KEY = 'l7xx1f2691f2520d487b902f4e0b57a0b197';
+
+// Omgeving toggle
+function setKVKEnv(env) {
+  kvkEnv = env;
+  document.getElementById('kvk-env-test').className = 'tg-btn' + (env === 'test' ? ' active' : '');
+  document.getElementById('kvk-env-prod').className = 'tg-btn' + (env === 'prod' ? ' active' : '');
+  document.getElementById('kvk-apikey-group').style.display = env === 'prod' ? 'block' : 'none';
+  document.getElementById('kvk-env-hint').textContent = env === 'test'
+    ? 'Testomgeving met fictieve bedrijfsdata — geen API-sleutel nodig'
+    : 'Productieomgeving — echte KVK-gegevens, eigen API-sleutel vereist';
+}
+
+// API-sleutel tonen/verbergen & opslaan in localStorage
+function toggleKVKApiVis() {
+  const inp = document.getElementById('kvk-apikey');
+  const btn = document.getElementById('kvk-eye');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+function saveKVKKey() {
+  try { localStorage.setItem('kvk_apikey', document.getElementById('kvk-apikey').value); } catch(e) {}
+}
+
+// Status weergeven
+function showKVKStatus(type, html) {
+  const el = document.getElementById('kvk-status');
+  el.style.display = 'block';
+  el.className = 'kvk-status ' + type;
+  el.innerHTML = type === 'loading'
+    ? `<span class="spin" style="display:inline-block">⟳</span> ${html}`
+    : html;
+}
+
+// ─── Hoofdfunctie: ophalen ───
+async function haalKVKOp() {
+  const kvkNum = (document.getElementById('kvk-nummer').value || '').replace(/\D/g, '').trim();
+
+  if (kvkNum.length !== 8) {
+    showKVKStatus('error', '⚠ Voer een geldig KVK-nummer in van precies 8 cijfers.');
+    return;
+  }
+
+  let apiKey;
+  if (kvkEnv === 'test') {
+    apiKey = KVK_TEST_KEY;
+  } else {
+    apiKey = (document.getElementById('kvk-apikey').value || '').trim();
+    if (!apiKey) {
+      showKVKStatus('error', '⚠ Vul een API-sleutel in voor de productieomgeving.');
+      return;
+    }
+    try { localStorage.setItem('kvk_apikey', apiKey); } catch(e) {}
+  }
+
+  const url = `https://api.kvk.nl/${kvkEnv === 'test' ? 'test/' : ''}api/v1/basisprofielen/${kvkNum}`;
+
+  const btn = document.getElementById('kvk-btn');
+  btn.disabled = true;
+  btn.style.opacity = '.5';
+  document.getElementById('kvk-result').style.display = 'none';
+  showKVKStatus('loading', 'Gegevens ophalen bij KVK Handelsregister…');
+
+  try {
+    const resp = await fetch(url, { headers: { 'apikey': apiKey } });
+    if (!resp.ok) {
+      const msg = {
+        401: 'Ongeldige API-sleutel (401 Unauthorized) — controleer uw sleutel op developers.kvk.nl',
+        403: 'Toegang geweigerd (403 Forbidden) — uw abonnement geeft geen toegang tot dit endpoint',
+        404: `KVK-nummer ${kvkNum} niet gevonden in het Handelsregister (404)`,
+        429: 'Te veel verzoeken — wacht even en probeer opnieuw (429)',
+      }[resp.status] || `KVK API fout: HTTP ${resp.status}`;
+      throw new Error(msg);
+    }
+    const data = await resp.json();
+    kvkBedrijf = parseKVKData(data, kvkNum);
+    document.getElementById('kvk-status').style.display = 'none';
+    renderKVKResult();
+  } catch(e) {
+    const msg = e.message || '';
+    if (e instanceof TypeError || msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')) {
+      showKVKStatus('error',
+        '🔒 <strong>Verbindingsfout (CORS)</strong> — uw browser blokkeert directe API-aanroepen vanuit een lokaal bestand.<br>' +
+        'Oplossing: open het bestand via een lokale webserver:<br>' +
+        '<code style="background:rgba(0,0,0,.2);padding:2px 5px;border-radius:3px;font-size:.75rem">' +
+        'cd ~/Documents &amp;&amp; python3 -m http.server 8080</code><br>' +
+        'Navigeer daarna naar <code style="background:rgba(0,0,0,.2);padding:2px 5px;border-radius:3px;font-size:.75rem">http://localhost:8080/vergelijking-vof-bv.html</code>');
+    } else {
+      showKVKStatus('error', '⚠ ' + msg);
+    }
+  } finally {
+    btn.disabled = false;
+    btn.style.opacity = '';
+  }
+}
+
+// ─── KVK response parsen ───
+function parseKVKData(data, kvkNum) {
+  const embedded      = data._embedded || {};
+  const eigenaar      = embedded.eigenaar || {};
+  const hoofdVest     = data.heeftHoofdvestiging || embedded.hoofdvestiging || {};
+  const adressen      = hoofdVest.adressen || [];
+  const binnenlands   = (adressen.find(a => a.binnenlandsAdres) || adressen[0] || {}).binnenlandsAdres || {};
+  const sbiLijst      = data.sbiActiviteiten || hoofdVest.sbiActiviteiten || [];
+  const sbiHoofd      = sbiLijst.find(s => s.indHoofdactiviteit === 'Ja') || sbiLijst[0] || {};
+  const rechtsvorm    = eigenaar.rechtsvorm || eigenaar.uitgebreideRechtsvorm || data.rechtsvorm || '';
+  const websites      = (hoofdVest.websites || []).slice(0, 2).join(', ');
+
+  return {
+    kvkNummer:       data.kvkNummer || kvkNum,
+    naam:            data.naam || eigenaar.naam || '',
+    rechtsvorm,
+    vestigingsplaats: binnenlands.plaats || '',
+    straat:          binnenlands.straatnaam
+                       ? `${binnenlands.straatnaam} ${binnenlands.huisnummer || ''}${binnenlands.huisletter || ''}`.trim()
+                       : '',
+    postcode:        binnenlands.postcode || '',
+    sbiCode:         sbiHoofd.sbiCode || '',
+    sbiOmschrijving: sbiHoofd.sbiOmschrijving || '',
+    websites,
+  };
+}
+
+// ─── Resultaat weergeven ───
+function renderKVKResult() {
+  if (!kvkBedrijf) return;
+  const b = kvkBedrijf;
+  const rvLower    = (b.rechtsvorm || '').toLowerCase();
+  const isEenman   = rvLower.includes('eenmanszaak');
+  const isVOF      = rvLower.includes('vennootschap onder firma') || rvLower.includes('v.o.f');
+  const isBV       = rvLower.includes('besloten vennootschap') || rvLower.includes('b.v.');
+  const rvKleur    = (isEenman || isVOF) ? 'var(--vof2)' : isBV ? 'var(--bv2)' : 'var(--text)';
+  const adresStr   = b.straat ? `${b.straat}, ${b.postcode} ${b.vestigingsplaats}` : (b.vestigingsplaats || '—');
+  const activiteit = b.sbiOmschrijving ? `${b.sbiOmschrijving}${b.sbiCode ? ' (' + b.sbiCode + ')' : ''}` : '—';
+
+  const rijen = [
+    ['KVK-nummer',     b.kvkNummer],
+    ['Handelsnaam',    `<strong>${b.naam || '—'}</strong>`],
+    ['Rechtsvorm',     `<span style="color:${rvKleur};font-weight:700">${b.rechtsvorm || '—'}</span>`],
+    ['Adres',          adresStr],
+    ['Activiteit',     activiteit],
+    b.websites ? ['Website', b.websites] : null,
+  ].filter(Boolean);
+
+  // Toepassen-knop op basis van rechtsvorm
+  let toepassenHtml = '';
+  if (isEenman) {
+    toepassenHtml = `<button class="kvk-apply-btn" onclick="applyKVKData()">
+      ✓ Toepassen als Eenmanszaak (1 vennoot)</button>`;
+  } else if (isVOF) {
+    toepassenHtml = `
+      <div style="margin-top:8px;font-size:.78rem;color:var(--text2);margin-bottom:5px">Aantal vennoten in de VOF:</div>
+      <div class="tg" style="margin-bottom:8px">
+        <div class="tg-btn${kvkVennoten===2?' active':''}" onclick="kvkVennoten=2;renderKVKResult()">2</div>
+        <div class="tg-btn${kvkVennoten===3?' active':''}" onclick="kvkVennoten=3;renderKVKResult()">3</div>
+      </div>
+      <button class="kvk-apply-btn" onclick="applyKVKData()">✓ Toepassen als VOF (${kvkVennoten} vennoten)</button>`;
+  } else if (isBV) {
+    toepassenHtml = `<button class="kvk-apply-btn bv" onclick="applyKVKData()">✓ Toepassen als BV</button>`;
+  } else {
+    toepassenHtml = `<div class="hint" style="margin-top:6px">Rechtsvorm niet herkend — stel de berekening handmatig in.</div>`;
+  }
+
+  const el = document.getElementById('kvk-result');
+  el.style.display = 'block';
+  el.innerHTML = `<div class="kvk-result-card">
+    ${rijen.map(([l, v]) => `<div class="kvk-stat"><span class="lbl">${l}</span><span class="val">${v}</span></div>`).join('')}
+    ${toepassenHtml}
+  </div>`;
+}
+
+// ─── Gegevens toepassen op de calculator ───
+function applyKVKData() {
+  if (!kvkBedrijf) return;
+  const rvLower = (kvkBedrijf.rechtsvorm || '').toLowerCase();
+  const isVOF   = rvLower.includes('vennootschap onder firma') || rvLower.includes('v.o.f');
+  const isBV    = rvLower.includes('besloten vennootschap') || rvLower.includes('b.v.');
+
+  if (isVOF) {
+    setVennoten(kvkVennoten);
+  } else if (!isBV) {
+    setVennoten(1); // eenmanszaak of onbekend
+  }
+  // BV: geen vennoten-aanpassing nodig, BV-kolom is altijd zichtbaar
+
+  showKVKStatus('ok', `✓ Gegevens van <strong>${kvkBedrijf.naam}</strong> toegepast.`);
+  setTimeout(() => { document.getElementById('kvk-status').style.display = 'none'; }, 3500);
+}
+
+// ═══════════════════════════════════════════════════
+//  AFDRUKKEN / PDF
+// ═══════════════════════════════════════════════════
+function printReport() {
+  const bruto    = Math.max(0, parseFloat(document.getElementById('brutowinst').value) || 0);
+  const urenPW   = Math.max(0, parseFloat(document.getElementById('urenperweek').value) || 0);
+  const dgaSal   = Math.max(0, parseFloat(document.getElementById('dgasalaris').value) || 0);
+  const urenPJ   = urenPW * 52;
+  const urenOk   = urenPJ >= P.urenmin;
+  const venStr   = S.vennoten === 1
+    ? '1 vennoot / eenmanszaak'
+    : S.verdeling.map((p,i) => `Vennoot ${i+1}: ${p}%`).join(', ');
+  const divStr   = S.dividend ? 'Ja (volledig uitgestort)' : 'Nee (winst in BV)';
+  const datum    = new Date().toLocaleDateString('nl-NL', {day:'numeric', month:'long', year:'numeric'});
+
+  // Bedrijfsgegevens uit KVK koppeling (indien opgehaald)
+  let kvkBlok = '';
+  if (kvkBedrijf) {
+    const b = kvkBedrijf;
+    const adres = b.straat ? `${b.straat}, ${b.postcode} ${b.vestigingsplaats}` : b.vestigingsplaats;
+    kvkBlok = `
+      <div style="margin-top:8pt;padding-top:8pt;border-top:1px solid #cbd5e1">
+        <strong>Bedrijfsgegevens (KVK Handelsregister)</strong><br>
+        <div class="ph-row" style="margin-top:4pt">
+          <span class="ph-item">🏢 <strong>${b.naam}</strong></span>
+          <span class="ph-item">KVK: ${b.kvkNummer}</span>
+          <span class="ph-item">Rechtsvorm: ${b.rechtsvorm}</span>
+          ${adres ? `<span class="ph-item">📍 ${adres}</span>` : ''}
+          ${b.sbiOmschrijving ? `<span class="ph-item">Activiteit: ${b.sbiOmschrijving}</span>` : ''}
+        </div>
+      </div>`;
+  }
+
+  const ph = document.getElementById('print-header');
+  if (ph) {
+    ph.innerHTML = `
+      <strong>VOF / Eenmanszaak vs BV — Fiscale Vergelijker 2026</strong><br>
+      <div class="ph-row" style="margin-top:6pt">
+        <span class="ph-item">📅 Gegenereerd: <strong>${datum}</strong></span>
+        <span class="ph-item">💰 Bruto winst: <strong>${fmt(bruto)}</strong></span>
+        <span class="ph-item">⏱ Uren/week: <strong>${Math.round(urenPW)}u</strong> (${urenOk ? '✓ urencriterium' : '✗ geen ZA'})</span>
+        <span class="ph-item">👥 VOF-structuur: <strong>${venStr}</strong></span>
+        <span class="ph-item">🏦 DGA-salaris: <strong>${fmt(Math.max(dgaSal, P.gebruikelijkLoon))}</strong></span>
+        <span class="ph-item">📊 Dividend: <strong>${divStr}</strong></span>
+      </div>
+      ${kvkBlok}`;
+  }
+  window.print();
+}
+
+// ═══════════════════════════════════════════════════
+//  UI HANDLERS
+// ═══════════════════════════════════════════════════
+function setToggle(key, val) {
+  S[key] = val;
+  if (key === 'partner') {
+    document.getElementById('partner-ja').className  = 'tg-btn' + (val  ? ' active' : '');
+    document.getElementById('partner-nee').className = 'tg-btn' + (!val ? ' active' : '');
+  }
+  if (key === 'dividend') {
+    document.getElementById('div-ja').className  = 'tg-btn' + (val  ? ' active' : '');
+    document.getElementById('div-nee').className = 'tg-btn' + (!val ? ' active' : '');
+  }
+  if (key === 'korTonen') {
+    document.getElementById('kor-ja').className  = 'tg-btn' + (val  ? ' active' : '');
+    document.getElementById('kor-nee').className = 'tg-btn' + (!val ? ' active' : '');
+    document.getElementById('kor-inputs').style.display = val ? 'block' : 'none';
+    document.getElementById('kor-card').style.display   = val ? 'block' : 'none';
+  }
+  calculate();
+}
+
+function setBTW(tarief) {
+  S.btwTarief = tarief;
+  document.getElementById('btw-21').className = 'tg-btn' + (tarief === 0.21 ? ' active' : '');
+  document.getElementById('btw-9').className  = 'tg-btn' + (tarief === 0.09 ? ' active' : '');
+  calculate();
+}
+
+function setKorKlanten(type) {
+  S.korKlanten = type;
+  document.getElementById('kor-b2c').className = 'tg-btn' + (type === 'b2c' ? ' active' : '');
+  document.getElementById('kor-b2b').className = 'tg-btn' + (type === 'b2b' ? ' active' : '');
+  const hint = document.getElementById('kor-klanten-hint');
+  if (hint) hint.textContent = type === 'b2c'
+    ? 'B2C: klant betaalt dezelfde totaalprijs → u behoudt de BTW'
+    : 'B2B: klant verwacht prijs excl. BTW → u verliest alleen de inkoop-BTW';
+  calculate();
+}
+
+function setVennoten(n) {
+  S.vennoten = n;
+  if (n === 1) S.verdeling = [100];
+  else if (n === 2) S.verdeling = [50, 50];
+  else S.verdeling = [34, 33, 33];
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('ven-' + i);
+    el.className = 'tg-btn' + (i === n ? ' active' : '');
+  });
+  renderVerdeling();
+  calculate();
+}
+
+function updateVennoot(idx, val) {
+  S.verdeling[idx] = parseInt(val);
+  const pctEl = document.getElementById('vpct-' + idx);
+  if (pctEl) pctEl.textContent = val + '%';
+  updateVennotenTotal();
+  calculate();
+}
+
+function updateVennotenTotal() {
+  const total = S.verdeling.reduce((s, v) => s + v, 0);
+  const el = document.getElementById('ven-total');
+  if (el) {
+    el.textContent = 'Totaal: ' + total + '%';
+    el.style.color = total === 100 ? 'var(--green)' : 'var(--red)';
+  }
+}
+
+function renderVerdeling() {
+  const c = document.getElementById('ven-verdeling');
+  if (S.vennoten === 1) { c.innerHTML = ''; return; }
+  let html = '';
+  for (let i = 0; i < S.vennoten; i++) {
+    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <label style="margin:0;min-width:72px;font-size:.78rem;white-space:nowrap">Vennoot ${i+1}</label>
+      <input type="range" min="0" max="100" value="${S.verdeling[i]}"
+             oninput="updateVennoot(${i},this.value)" style="flex:1;accent-color:var(--vof)">
+      <span id="vpct-${i}" style="min-width:36px;text-align:right;font-size:.82rem;font-weight:600">${S.verdeling[i]}%</span>
+    </div>`;
+  }
+  const total = S.verdeling.reduce((s,v)=>s+v,0);
+  html += `<div id="ven-total" style="text-align:right;font-size:.75rem;color:${total===100?'var(--green)':'var(--red)'}">Totaal: ${total}%</div>`;
+  c.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+//  LIVE INPUT LISTENERS
+// ═══════════════════════════════════════════════════
+['brutowinst', 'urenperweek', 'dgasalaris', 'kor-omzet', 'kor-inputbtw'].forEach(id => {
+  document.getElementById(id).addEventListener('input', calculate);
+});
+
+// ═══════════════════════════════════════════════════
+//  THEMA SCHAKELAAR
+// ═══════════════════════════════════════════════════
+const MOON_ICON = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const SUN_ICON  = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  updateThemeBtn(isLight);
+  try { localStorage.setItem('theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+
+function updateThemeBtn(isLight) {
+  const btn  = document.getElementById('theme-btn');
+  const icon = document.getElementById('theme-icon');
+  if (!btn || !icon) return;
+  icon.innerHTML = isLight ? SUN_ICON : MOON_ICON;
+  btn.childNodes[btn.childNodes.length - 1].textContent = isLight ? ' Donker thema' : ' Licht thema';
+}
+
+// ─── INIT ───
+renderVerdeling();
+calculate();
+
+// Herstel thema
+try {
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    updateThemeBtn(true);
+  }
+} catch(e) {}
+
+// Herstel opgeslagen KVK API-sleutel
+try {
+  const savedKey = localStorage.getItem('kvk_apikey');
+  if (savedKey) document.getElementById('kvk-apikey').value = savedKey;
+} catch(e) {}
+</script>
+</body>
+</html>
